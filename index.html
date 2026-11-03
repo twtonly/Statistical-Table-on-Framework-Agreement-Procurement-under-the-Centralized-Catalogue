@@ -28,6 +28,8 @@
       --success: #10b981;
       --success-light: #ecfdf5;
       --warning: #f59e0b;
+      --danger: #ef4444;
+      --danger-light: #fef2f2;
       --radius-lg: 24px;
       --radius-md: 16px;
       --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
@@ -47,9 +49,8 @@
       line-height: 1.5;
     }
 
-    /* 主容器 */
     .app-container {
-      max-width: 1400px;
+      max-width: 1500px;
       width: 100%;
       display: flex;
       flex-direction: column;
@@ -112,7 +113,7 @@
       color: var(--text-secondary);
     }
 
-    /* 双栏布局：左侧表单，右侧分类统计 & 表格 */
+    /* 双栏布局 */
     .main-grid {
       display: grid;
       grid-template-columns: 1fr 1.8fr;
@@ -129,6 +130,12 @@
       border: 1px solid rgba(255, 255, 255, 0.6);
       position: sticky;
       top: 2rem;
+      transition: var(--transition);
+    }
+
+    .form-card.editing {
+      border: 2px solid var(--primary);
+      background: #fafcff;
     }
 
     .form-title {
@@ -147,6 +154,22 @@
       padding: 0.5rem;
       border-radius: 14px;
       font-size: 1.2rem;
+    }
+
+    .edit-badge {
+      display: none;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.25rem 0.6rem;
+      border-radius: 20px;
+      margin-left: 0.4rem;
+      vertical-align: middle;
+    }
+
+    .form-card.editing .edit-badge {
+      display: inline-block;
     }
 
     .form-group {
@@ -188,16 +211,27 @@
       color: #cbd5e1;
     }
 
-    /* 两列小字段 */
+    .form-control:disabled {
+      background: #f8fafc;
+      color: #64748b;
+      cursor: not-allowed;
+    }
+
     .row-2col {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 0.9rem;
     }
 
-    /* 按钮 */
+    /* 按钮组 */
+    .btn-group {
+      display: flex;
+      gap: 0.7rem;
+      margin-top: 0.5rem;
+    }
+
     .btn-primary {
-      width: 100%;
+      flex: 2;
       background: var(--primary);
       color: white;
       border: none;
@@ -213,7 +247,6 @@
       cursor: pointer;
       transition: var(--transition);
       box-shadow: 0 6px 14px -4px rgba(37, 99, 235, 0.35);
-      margin-top: 0.5rem;
     }
 
     .btn-primary:hover {
@@ -221,8 +254,32 @@
       transform: scale(1.01);
     }
 
-    .btn-primary i {
-      font-size: 1rem;
+    .btn-secondary {
+      flex: 1;
+      background: transparent;
+      color: var(--text-secondary);
+      border: 1.5px solid var(--border-light);
+      padding: 0.9rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      transition: var(--transition);
+    }
+
+    .btn-secondary:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
+      color: #1e293b;
+    }
+
+    .btn-secondary i {
+      font-size: 0.9rem;
     }
 
     /* 右侧区域 */
@@ -259,49 +316,74 @@
       font-size: 0.95rem;
     }
 
-    .category-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.75rem 1.5rem;
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 1rem;
     }
 
-    .category-item {
+    .category-item-card {
+      background: #f8fafc;
+      border-radius: 18px;
+      padding: 1rem 1.1rem;
+      border: 1px solid #eef2f6;
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      gap: 0.35rem;
+    }
+
+    .category-item-card:hover {
+      border-color: #cbd5e1;
+      background: #ffffff;
+      box-shadow: 0 4px 10px -4px rgba(0, 0, 0, 0.05);
+    }
+
+    .cat-name {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #1e293b;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
       display: flex;
       align-items: center;
-      gap: 0.6rem;
-      flex: 1 1 160px;
-      font-size: 0.95rem;
-      padding: 0.4rem 0;
-      border-bottom: 1px dashed #e9eef3;
+      gap: 0.4rem;
     }
 
-    .category-name {
+    .cat-name i {
+      color: var(--primary);
+      font-size: 0.85rem;
+    }
+
+    .cat-count {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--primary);
+      line-height: 1.2;
+    }
+
+    .cat-count span {
+      font-size: 0.8rem;
       font-weight: 500;
-      color: #1e293b;
-      min-width: 90px;
+      color: var(--text-secondary);
+      margin-left: 0.2rem;
     }
 
-    .category-bar {
-      flex: 1;
-      height: 8px;
-      background: #eef2f6;
-      border-radius: 20px;
+    .cat-bar-bg {
+      width: 100%;
+      height: 5px;
+      background: #e2e8f0;
+      border-radius: 10px;
+      margin-top: 0.3rem;
       overflow: hidden;
-      min-width: 60px;
     }
 
-    .category-bar-fill {
+    .cat-bar-fill {
       height: 100%;
       background: var(--primary);
-      border-radius: 20px;
+      border-radius: 10px;
       transition: width 0.4s ease;
-    }
-
-    .category-count {
-      font-weight: 600;
-      color: var(--primary);
-      min-width: 40px;
-      text-align: right;
     }
 
     /* 表格卡片 */
@@ -365,7 +447,7 @@
       width: 100%;
       border-collapse: collapse;
       font-size: 0.85rem;
-      min-width: 1000px;
+      min-width: 1300px;
     }
 
     th {
@@ -385,10 +467,16 @@
       border-bottom: 1px solid #f1f5f9;
       color: #1e293b;
       vertical-align: middle;
+      white-space: nowrap;
     }
 
     tr:last-child td {
       border-bottom: none;
+    }
+
+    tr.editing-row {
+      background: #f0f7ff;
+      box-shadow: inset 4px 0 0 var(--primary);
     }
 
     .badge {
@@ -401,14 +489,51 @@
       white-space: nowrap;
     }
 
-    .budget-arrow {
+    .saving-positive {
       color: var(--success);
       font-weight: 600;
     }
 
-    .saving-positive {
-      color: var(--success);
+    .saving-negative {
+      color: #dc2626;
       font-weight: 600;
+    }
+
+    /* 操作按钮 */
+    .action-btns {
+      display: flex;
+      gap: 0.4rem;
+      align-items: center;
+    }
+
+    .btn-icon {
+      background: transparent;
+      border: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    .btn-icon:hover {
+      background: #eef2f6;
+      color: var(--text-main);
+    }
+
+    .btn-icon.edit:hover {
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+
+    .btn-icon.delete:hover {
+      background: var(--danger-light);
+      color: var(--danger);
     }
 
     .empty-state {
@@ -425,7 +550,7 @@
     }
 
     /* 响应式 */
-    @media (max-width: 1100px) {
+    @media (max-width: 1200px) {
       .main-grid {
         grid-template-columns: 1fr;
       }
@@ -454,12 +579,14 @@
       .form-card, .category-card, .table-card {
         padding: 1.5rem 1.2rem;
       }
-      .category-item {
-        flex: 1 1 100%;
+      .category-grid {
+        grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+      }
+      .btn-group {
+        flex-direction: column;
       }
     }
 
-    /* 小型动画 */
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(6px); }
       to { opacity: 1; transform: translateY(0); }
@@ -498,22 +625,23 @@
 
     <!-- 主要内容区域 -->
     <div class="main-grid">
-      <!-- 左侧表单 -->
-      <div class="form-card">
+      <!-- 左侧表单（新增 + 编辑共用） -->
+      <div class="form-card" id="formCard">
         <div class="form-title">
-          <i class="fas fa-plus-circle"></i> 新增采购记录
+          <i class="fas fa-plus-circle" id="formIcon"></i>
+          <span id="formTitleText">新增采购记录</span>
+          <span class="edit-badge"><i class="fas fa-pen"></i> 编辑中</span>
         </div>
         <form id="purchaseForm">
-          <!-- 序号自动生成，无需填写，但提供隐藏字段或展示？为了整洁，显示自动序号 -->
+          <!-- 序号（自动生成/编辑时显示） -->
           <div class="form-group">
             <label>序号</label>
-            <input type="text" class="form-control" id="autoSeqDisplay" placeholder="自动生成" readonly disabled style="background:#f8fafc; color:#64748b; cursor:not-allowed;">
-            <input type="hidden" id="recordSeq" value="">
+            <input type="text" class="form-control" id="autoSeqDisplay" placeholder="自动生成" readonly disabled>
           </div>
 
           <div class="form-group">
             <label for="purchaseContent">采购内容 <span class="required-asterisk">*</span></label>
-            <input type="text" id="purchaseContent" class="form-control" placeholder="例如：办公用品、IT设备" required>
+            <input type="text" id="purchaseContent" class="form-control" placeholder="例如：电脑、显示器、服务器、打印机" required>
           </div>
 
           <div class="form-group">
@@ -532,20 +660,33 @@
             </div>
           </div>
 
+          <!-- 供货商 -->
+          <div class="form-group">
+            <label for="supplier">供货商 <span class="required-asterisk">*</span></label>
+            <input type="text" id="supplier" class="form-control" placeholder="例如：华为、联想、戴尔" required>
+          </div>
+
           <div class="row-2col">
             <div class="form-group">
               <label for="quantity">采购数量 <span class="required-asterisk">*</span></label>
               <input type="number" id="quantity" class="form-control" placeholder="1" min="1" step="1" value="1" required>
             </div>
+            <!-- 履约时间 -->
+            <div class="form-group">
+              <label for="deliveryDate">履约时间 <span class="required-asterisk">*</span></label>
+              <input type="date" id="deliveryDate" class="form-control" required>
+            </div>
+          </div>
+
+          <div class="row-2col">
             <div class="form-group">
               <label for="budgetPrice">预算价 (¥) <span class="required-asterisk">*</span></label>
               <input type="number" id="budgetPrice" class="form-control" placeholder="0.00" min="0" step="0.01" required>
             </div>
-          </div>
-
-          <div class="form-group">
-            <label for="contractPrice">合同价 (¥) <span class="required-asterisk">*</span></label>
-            <input type="number" id="contractPrice" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+            <div class="form-group">
+              <label for="contractPrice">合同价 (¥) <span class="required-asterisk">*</span></label>
+              <input type="number" id="contractPrice" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+            </div>
           </div>
 
           <div class="form-group">
@@ -553,9 +694,15 @@
             <input type="text" id="remarks" class="form-control" placeholder="选填">
           </div>
 
-          <button type="submit" class="btn-primary">
-            <i class="fas fa-check-circle"></i> 添加记录
-          </button>
+          <!-- 按钮组：新增/保存 + 取消编辑 -->
+          <div class="btn-group">
+            <button type="submit" class="btn-primary" id="submitBtn">
+              <i class="fas fa-check-circle"></i> <span id="submitBtnText">添加记录</span>
+            </button>
+            <button type="button" class="btn-secondary" id="cancelEditBtn" style="display: none;">
+              <i class="fas fa-times"></i> 取消
+            </button>
+          </div>
         </form>
       </div>
 
@@ -566,9 +713,8 @@
           <div class="category-title">
             <i class="fas fa-chart-pie"></i> 采购内容分类统计
           </div>
-          <div id="categoryStatsContainer" class="category-list">
-            <!-- 动态渲染分类 -->
-            <div class="empty-state" style="padding: 0.8rem; width: 100%;">
+          <div id="categoryStatsContainer" class="category-grid">
+            <div class="empty-state" style="padding: 0.8rem; grid-column: 1 / -1;">
               <i class="fas fa-box-open" style="font-size:1.5rem;"></i> 暂无分类数据，请添加记录
             </div>
           </div>
@@ -591,11 +737,14 @@
                   <th>采购部门</th>
                   <th>申请人</th>
                   <th>联系电话</th>
+                  <th>供货商</th>
                   <th>数量</th>
                   <th>预算价(¥)</th>
                   <th>合同价(¥)</th>
                   <th>节约(¥)</th>
+                  <th>履约时间</th>
                   <th>备注</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody id="recordsBody">
@@ -616,18 +765,27 @@
       // ---------- 数据存储 ----------
       let records = [];            // 存储所有采购记录
       let nextSeq = 1;            // 自增序号
+      let editingId = null;       // 当前正在编辑的记录 seq，null 表示新增模式
 
       // ---------- DOM 元素 ----------
       const form = document.getElementById('purchaseForm');
+      const formCard = document.getElementById('formCard');
+      const formIcon = document.getElementById('formIcon');
+      const formTitleText = document.getElementById('formTitleText');
       const autoSeqDisplay = document.getElementById('autoSeqDisplay');
       const purchaseContent = document.getElementById('purchaseContent');
       const department = document.getElementById('department');
       const applicant = document.getElementById('applicant');
       const phone = document.getElementById('phone');
+      const supplier = document.getElementById('supplier');
       const quantity = document.getElementById('quantity');
+      const deliveryDate = document.getElementById('deliveryDate');
       const budgetPrice = document.getElementById('budgetPrice');
       const contractPrice = document.getElementById('contractPrice');
       const remarks = document.getElementById('remarks');
+      const submitBtn = document.getElementById('submitBtn');
+      const submitBtnText = document.getElementById('submitBtnText');
+      const cancelEditBtn = document.getElementById('cancelEditBtn');
 
       // 统计显示
       const statTotalItems = document.getElementById('statTotalItems');
@@ -641,110 +799,22 @@
       const tableEmptyState = document.getElementById('tableEmptyState');
 
       // ---------- 工具函数 ----------
-      // 格式化金额
       function formatMoney(value) {
         return '¥' + Number(value).toFixed(2);
       }
 
-      // 计算单条节约金额
       function calcSaving(item) {
         return (item.budgetPrice - item.contractPrice);
       }
 
-      // 生成序号显示
       function updateSeqDisplay() {
-        autoSeqDisplay.value = '将自动生成 (当前序号: ' + nextSeq + ')';
+        if (editingId !== null) {
+          autoSeqDisplay.value = '编辑中 (序号: ' + editingId + ')';
+        } else {
+          autoSeqDisplay.value = '将自动生成 (当前序号: ' + nextSeq + ')';
+        }
       }
 
-      // ---------- 更新所有统计、分类、表格 ----------
-      function renderAll() {
-        // 1. 更新头部统计卡片
-        const totalItems = records.length;
-        const totalBudget = records.reduce((sum, r) => sum + r.budgetPrice, 0);
-        const totalContract = records.reduce((sum, r) => sum + r.contractPrice, 0);
-        const totalSaving = totalBudget - totalContract;
-
-        statTotalItems.textContent = totalItems;
-        statTotalBudget.textContent = formatMoney(totalBudget);
-        statTotalContract.textContent = formatMoney(totalContract);
-        statTotalSaving.textContent = formatMoney(totalSaving);
-
-        // 2. 分类统计 (按采购内容)
-        const categoryMap = new Map(); // key: 采购内容, value: { count, totalBudget, totalContract }
-        records.forEach(r => {
-          const content = r.purchaseContent.trim() || '未分类';
-          if (!categoryMap.has(content)) {
-            categoryMap.set(content, { count: 0, totalBudget: 0, totalContract: 0 });
-          }
-          const cat = categoryMap.get(content);
-          cat.count += 1;
-          cat.totalBudget += r.budgetPrice;
-          cat.totalContract += r.contractPrice;
-        });
-
-        // 渲染分类
-        if (categoryMap.size === 0) {
-          categoryStatsContainer.innerHTML = `
-            <div class="empty-state" style="padding: 0.8rem; width: 100%;">
-              <i class="fas fa-box-open" style="font-size:1.5rem;"></i> 暂无分类数据，请添加记录
-            </div>`;
-        } else {
-          let html = '';
-          // 按数量降序排列
-          const sortedCategories = Array.from(categoryMap.entries()).sort((a, b) => b[1].count - a[1].count);
-          const maxCount = Math.max(...sortedCategories.map(([_, v]) => v.count), 1);
-
-          sortedCategories.forEach(([content, data]) => {
-            const percentage = (data.count / maxCount) * 100;
-            html += `
-              <div class="category-item">
-                <span class="category-name">${escapeHtml(content)}</span>
-                <div class="category-bar">
-                  <div class="category-bar-fill" style="width: ${percentage}%;"></div>
-                </div>
-                <span class="category-count">${data.count} 项</span>
-              </div>
-            `;
-          });
-          categoryStatsContainer.innerHTML = html;
-        }
-
-        // 3. 渲染表格
-        if (records.length === 0) {
-          tableEmptyState.style.display = 'block';
-          recordsBody.innerHTML = '';
-        } else {
-          tableEmptyState.style.display = 'none';
-          let rows = '';
-          // 按序号正序显示
-          records.forEach(r => {
-            const saving = calcSaving(r);
-            const savingClass = saving > 0 ? 'saving-positive' : (saving < 0 ? 'style="color:#dc2626;"' : '');
-            rows += `
-              <tr class="record-row">
-                <td><span class="badge">${r.seq}</span></td>
-                <td><strong>${escapeHtml(r.purchaseContent)}</strong></td>
-                <td>${escapeHtml(r.department)}</td>
-                <td>${escapeHtml(r.applicant)}</td>
-                <td>${escapeHtml(r.phone || '—')}</td>
-                <td>${r.quantity}</td>
-                <td>${formatMoney(r.budgetPrice)}</td>
-                <td>${formatMoney(r.contractPrice)}</td>
-                <td class="${saving > 0 ? 'saving-positive' : ''}" ${saving < 0 ? 'style="color:#dc2626;"' : ''}>
-                  ${formatMoney(saving)}
-                </td>
-                <td>${escapeHtml(r.remarks || '—')}</td>
-              </tr>
-            `;
-          });
-          recordsBody.innerHTML = rows;
-        }
-
-        // 更新序号显示
-        updateSeqDisplay();
-      }
-
-      // 转义HTML防止XSS
       function escapeHtml(text) {
         if (!text) return '';
         const map = {
@@ -757,27 +827,178 @@
         return text.replace(/[&<>"']/g, function(m) { return map[m]; });
       }
 
-      // ---------- 添加记录 ----------
-      function addRecord(e) {
+      // ---------- 渲染所有 ----------
+      function renderAll() {
+        // 1. 更新头部统计
+        const totalItems = records.length;
+        const totalBudget = records.reduce((sum, r) => sum + r.budgetPrice, 0);
+        const totalContract = records.reduce((sum, r) => sum + r.contractPrice, 0);
+        const totalSaving = totalBudget - totalContract;
+
+        statTotalItems.textContent = totalItems;
+        statTotalBudget.textContent = formatMoney(totalBudget);
+        statTotalContract.textContent = formatMoney(totalContract);
+        statTotalSaving.textContent = formatMoney(totalSaving);
+
+        // 2. 分类统计（按采购内容）
+        const categoryMap = new Map();
+        records.forEach(r => {
+          let content = r.purchaseContent.trim();
+          if (content === '') content = '未分类';
+          if (!categoryMap.has(content)) {
+            categoryMap.set(content, { count: 0, totalBudget: 0, totalContract: 0 });
+          }
+          const cat = categoryMap.get(content);
+          cat.count += 1;
+          cat.totalBudget += r.budgetPrice;
+          cat.totalContract += r.contractPrice;
+        });
+
+        if (categoryMap.size === 0) {
+          categoryStatsContainer.innerHTML = `
+            <div class="empty-state" style="padding: 0.8rem; grid-column: 1 / -1;">
+              <i class="fas fa-box-open" style="font-size:1.5rem;"></i> 暂无分类数据，请添加记录
+            </div>`;
+        } else {
+          let html = '';
+          const sortedCategories = Array.from(categoryMap.entries()).sort((a, b) => b[1].count - a[1].count);
+          const maxCount = Math.max(...sortedCategories.map(([_, v]) => v.count), 1);
+
+          sortedCategories.forEach(([content, data]) => {
+            const percentage = (data.count / maxCount) * 100;
+            let icon = 'fa-tag';
+            const lower = content.toLowerCase();
+            if (lower.includes('电脑') || lower.includes('计算机') || lower.includes('笔记本')) icon = 'fa-laptop';
+            else if (lower.includes('显示器') || lower.includes('屏幕')) icon = 'fa-desktop';
+            else if (lower.includes('服务器')) icon = 'fa-server';
+            else if (lower.includes('打印机') || lower.includes('打印')) icon = 'fa-print';
+            else if (lower.includes('桌椅') || lower.includes('家具')) icon = 'fa-chair';
+            else if (lower.includes('网络') || lower.includes('路由')) icon = 'fa-wifi';
+            else if (lower.includes('软件')) icon = 'fa-code';
+
+            html += `
+              <div class="category-item-card">
+                <div class="cat-name">
+                  <i class="fas ${icon}"></i> ${escapeHtml(content)}
+                </div>
+                <div class="cat-count">${data.count}<span>项</span></div>
+                <div class="cat-bar-bg">
+                  <div class="cat-bar-fill" style="width: ${percentage}%;"></div>
+                </div>
+              </div>
+            `;
+          });
+          categoryStatsContainer.innerHTML = html;
+        }
+
+        // 3. 渲染表格（带操作列）
+        if (records.length === 0) {
+          tableEmptyState.style.display = 'block';
+          recordsBody.innerHTML = '';
+        } else {
+          tableEmptyState.style.display = 'none';
+          let rows = '';
+          records.forEach(r => {
+            const saving = calcSaving(r);
+            const savingClass = saving > 0 ? 'saving-positive' : (saving < 0 ? 'saving-negative' : '');
+            const isEditing = (editingId === r.seq);
+            const rowClass = isEditing ? 'record-row editing-row' : 'record-row';
+            rows += `
+              <tr class="${rowClass}" data-seq="${r.seq}">
+                <td><span class="badge">${r.seq}</span></td>
+                <td><strong>${escapeHtml(r.purchaseContent)}</strong></td>
+                <td>${escapeHtml(r.department)}</td>
+                <td>${escapeHtml(r.applicant)}</td>
+                <td>${escapeHtml(r.phone || '—')}</td>
+                <td>${escapeHtml(r.supplier)}</td>
+                <td>${r.quantity}</td>
+                <td>${formatMoney(r.budgetPrice)}</td>
+                <td>${formatMoney(r.contractPrice)}</td>
+                <td class="${savingClass}">${formatMoney(saving)}</td>
+                <td>${escapeHtml(r.deliveryDate || '—')}</td>
+                <td>${escapeHtml(r.remarks || '—')}</td>
+                <td>
+                  <div class="action-btns">
+                    <button class="btn-icon edit" title="编辑" data-action="edit" data-seq="${r.seq}"><i class="fas fa-pen"></i></button>
+                    <button class="btn-icon delete" title="删除" data-action="delete" data-seq="${r.seq}"><i class="fas fa-trash-alt"></i></button>
+                  </div>
+                </td>
+              </tr>
+            `;
+          });
+          recordsBody.innerHTML = rows;
+        }
+
+        updateSeqDisplay();
+      }
+
+      // ---------- 切换编辑模式 ----------
+      function enterEditMode(record) {
+        editingId = record.seq;
+        formCard.classList.add('editing');
+        formIcon.className = 'fas fa-pen';
+        formTitleText.textContent = '编辑采购记录';
+        submitBtnText.textContent = '保存修改';
+        cancelEditBtn.style.display = 'flex';
+
+        // 填充表单
+        purchaseContent.value = record.purchaseContent;
+        department.value = record.department;
+        applicant.value = record.applicant;
+        phone.value = record.phone || '';
+        supplier.value = record.supplier;
+        quantity.value = record.quantity;
+        deliveryDate.value = record.deliveryDate || '';
+        budgetPrice.value = record.budgetPrice;
+        contractPrice.value = record.contractPrice;
+        remarks.value = record.remarks || '';
+
+        autoSeqDisplay.value = '编辑中 (序号: ' + record.seq + ')';
+        purchaseContent.focus();
+        formCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+
+      function exitEditMode() {
+        editingId = null;
+        formCard.classList.remove('editing');
+        formIcon.className = 'fas fa-plus-circle';
+        formTitleText.textContent = '新增采购记录';
+        submitBtnText.textContent = '添加记录';
+        cancelEditBtn.style.display = 'none';
+
+        // 重置表单
+        form.reset();
+        quantity.value = 1;
+        const today = new Date().toISOString().split('T')[0];
+        deliveryDate.value = today;
+        autoSeqDisplay.value = '将自动生成 (当前序号: ' + nextSeq + ')';
+      }
+
+      // ---------- 提交（新增/保存修改） ----------
+      function handleSubmit(e) {
         e.preventDefault();
 
-        // 获取并校验值
         const content = purchaseContent.value.trim();
         const dept = department.value.trim();
         const app = applicant.value.trim();
         const phoneVal = phone.value.trim();
+        const supplierVal = supplier.value.trim();
         const qty = parseFloat(quantity.value);
+        const delivery = deliveryDate.value;
         const budget = parseFloat(budgetPrice.value);
         const contract = parseFloat(contractPrice.value);
         const remark = remarks.value.trim();
 
-        // 基本验证
-        if (!content || !dept || !app) {
-          alert('请填写采购内容、采购部门和申请人');
+        if (!content || !dept || !app || !supplierVal) {
+          alert('请填写采购内容、采购部门、申请人和供货商');
           return;
         }
         if (isNaN(qty) || qty <= 0) {
           alert('采购数量必须大于0');
+          return;
+        }
+        if (!delivery) {
+          alert('请选择履约时间');
           return;
         }
         if (isNaN(budget) || budget < 0) {
@@ -789,28 +1010,63 @@
           return;
         }
 
-        // 创建记录
-        const newRecord = {
-          seq: nextSeq++,
-          purchaseContent: content,
-          department: dept,
-          applicant: app,
-          phone: phoneVal,
-          quantity: qty,
-          budgetPrice: budget,
-          contractPrice: contract,
-          remarks: remark
-        };
+        if (editingId !== null) {
+          // 编辑保存：查找并更新
+          const idx = records.findIndex(r => r.seq === editingId);
+          if (idx !== -1) {
+            records[idx] = {
+              ...records[idx],
+              purchaseContent: content,
+              department: dept,
+              applicant: app,
+              phone: phoneVal,
+              supplier: supplierVal,
+              quantity: qty,
+              deliveryDate: delivery,
+              budgetPrice: budget,
+              contractPrice: contract,
+              remarks: remark
+            };
+          }
+          exitEditMode();
+        } else {
+          // 新增
+          const newRecord = {
+            seq: nextSeq++,
+            purchaseContent: content,
+            department: dept,
+            applicant: app,
+            phone: phoneVal,
+            supplier: supplierVal,
+            quantity: qty,
+            deliveryDate: delivery,
+            budgetPrice: budget,
+            contractPrice: contract,
+            remarks: remark
+          };
+          records.push(newRecord);
+          form.reset();
+          quantity.value = 1;
+          deliveryDate.value = delivery;
+          purchaseContent.focus();
+        }
 
-        records.push(newRecord);
-        
-        // 重置表单（保留部分默认值，但清空内容）
-        form.reset();
-        // 设定默认数量1，其他空
-        quantity.value = 1;
-        purchaseContent.focus();
+        renderAll();
+      }
 
-        // 重新渲染
+      // ---------- 删除单条 ----------
+      function deleteRecord(seq) {
+        const record = records.find(r => r.seq === seq);
+        if (!record) return;
+        if (!confirm(`确定要删除序号 ${seq} 的记录（${record.purchaseContent}）吗？`)) return;
+
+        // 如果正在编辑这条记录，先退出编辑模式
+        if (editingId === seq) {
+          exitEditMode();
+        }
+
+        records = records.filter(r => r.seq !== seq);
+        // 不重置 nextSeq，保持序号唯一性
         renderAll();
       }
 
@@ -821,44 +1077,52 @@
 
         records = [];
         nextSeq = 1;
+        if (editingId !== null) exitEditMode();
         renderAll();
-        // 同时清空表单
         form.reset();
         quantity.value = 1;
-        updateSeqDisplay();
+      }
+
+      // ---------- 表格事件委托（编辑/删除） ----------
+      function handleTableClick(e) {
+        const btn = e.target.closest('.btn-icon');
+        if (!btn) return;
+        const action = btn.dataset.action;
+        const seq = parseInt(btn.dataset.seq, 10);
+        if (isNaN(seq)) return;
+
+        if (action === 'edit') {
+          const record = records.find(r => r.seq === seq);
+          if (record) enterEditMode(record);
+        } else if (action === 'delete') {
+          deleteRecord(seq);
+        }
       }
 
       // ---------- 初始化 ----------
       function init() {
-        // 设置初始序号显示
         nextSeq = 1;
-        updateSeqDisplay();
-
-        // 表单提交事件
-        form.addEventListener('submit', addRecord);
-
-        // 清空按钮
-        document.getElementById('clearAllBtn').addEventListener('click', clearAllRecords);
-
-        // 默认数量值
         quantity.value = 1;
+        const today = new Date().toISOString().split('T')[0];
+        deliveryDate.value = today;
 
-        // 首次渲染（虽然记录为空）
+        form.addEventListener('submit', handleSubmit);
+        cancelEditBtn.addEventListener('click', exitEditMode);
+        document.getElementById('clearAllBtn').addEventListener('click', clearAllRecords);
+        recordsBody.addEventListener('click', handleTableClick);
+
         renderAll();
 
-        // 可选：添加示例数据以展示效果？这里不添加，保持空白。用户可手动输入。
-        // 但为了演示统计效果，可以添加一两条？考虑到用户需要真实体验，我们不加示例，完全由用户操作。
-        // 如果你想演示，可以取消下面注释：
+        // 如需演示数据，可取消下方注释
         /*
-        // 示例数据（仅用于演示，可删除）
-        records.push({ seq: nextSeq++, purchaseContent: '办公用品', department: '行政部', applicant: '张明', phone: '13800138000', quantity: 5, budgetPrice: 500, contractPrice: 450, remarks: '季度采购' });
-        records.push({ seq: nextSeq++, purchaseContent: 'IT设备', department: '技术部', applicant: '李华', phone: '13912345678', quantity: 2, budgetPrice: 8000, contractPrice: 7600, remarks: '笔记本电脑' });
-        records.push({ seq: nextSeq++, purchaseContent: '办公用品', department: '财务部', applicant: '王芳', phone: '13698765432', quantity: 3, budgetPrice: 300, contractPrice: 280, remarks: '' });
+        records.push({ seq: nextSeq++, purchaseContent: '电脑', department: '技术部', applicant: '张明', phone: '13800138000', supplier: '联想', quantity: 5, deliveryDate: '2025-06-30', budgetPrice: 25000, contractPrice: 23800, remarks: '开发用' });
+        records.push({ seq: nextSeq++, purchaseContent: '显示器', department: '设计部', applicant: '李华', phone: '13912345678', supplier: '戴尔', quantity: 8, deliveryDate: '2025-07-15', budgetPrice: 9600, contractPrice: 9200, remarks: '' });
+        records.push({ seq: nextSeq++, purchaseContent: '服务器', department: '信息中心', applicant: '王芳', phone: '13698765432', supplier: '华为', quantity: 2, deliveryDate: '2025-08-01', budgetPrice: 80000, contractPrice: 76000, remarks: '集群' });
+        records.push({ seq: nextSeq++, purchaseContent: '打印机', department: '行政部', applicant: '赵岩', phone: '13511112222', supplier: '惠普', quantity: 3, deliveryDate: '2025-07-20', budgetPrice: 4500, contractPrice: 4200, remarks: '激光' });
         renderAll();
         */
       }
 
-      // 页面加载执行
       init();
     })();
   </script>
