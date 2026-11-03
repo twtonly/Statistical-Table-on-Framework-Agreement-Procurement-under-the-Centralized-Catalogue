@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>框架协议采购统计 · 工作量统计</title>
+  <!-- 字体与图标 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-gradient: linear-gradient(145deg, #f6f9fc 0%, #edf2f7 100%);
+      --card-bg: #ffffff;
+      --primary: #2563eb;
+      --primary-light: #eff6ff;
+      --primary-hover: #1d4ed8;
+      --text-main: #0f172a;
+      --text-secondary: #475569;
+      --border-light: #e2e8f0;
+      --success: #10b981;
+      --success-light: #ecfdf5;
+      --warning: #f59e0b;
+      --radius-lg: 24px;
+      --radius-md: 16px;
+      --shadow-card: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.02);
+      --shadow-focus: 0 0 0 4px rgba(37, 99, 235, 0.12);
+      --transition: all 0.2s ease;
+    }
+
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: var(--bg-gradient);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1.5rem;
+      color: var(--text-main);
+      line-height: 1.5;
+    }
+
+    /* 主容器 */
+    .app-container {
+      max-width: 1400px;
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      gap: 2rem;
+    }
+
+    /* 头部统计卡片 */
+    .stats-header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: space-between;
+      align-items: stretch;
+    }
+
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem 2rem;
+      box-shadow: var(--shadow-card);
+      flex: 1 1 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      transition: var(--transition);
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 20px 30px -12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .stat-label i {
+      color: var(--primary);
+      font-size: 1.1rem;
+    }
+
+    .stat-value {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-main);
+      line-height: 1.2;
+    }
+
+    .stat-sub {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* 双栏布局：左侧表单，右侧分类统计 & 表格 */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr 1.8fr;
+      gap: 1.8rem;
+      align-items: start;
+    }
+
+    /* 左侧表单卡片 */
+    .form-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 2rem 1.8rem;
+      box-shadow: var(--shadow-card);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      position: sticky;
+      top: 2rem;
+    }
+
+    .form-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.5rem;
+      color: #0b1e3a;
+    }
+
+    .form-title i {
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.5rem;
+      border-radius: 14px;
+      font-size: 1.2rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 0.4rem;
+    }
+
+    .required-asterisk {
+      color: #ef4444;
+      margin-left: 0.15rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.95rem;
+      background: #ffffff;
+      border: 1.5px solid var(--border-light);
+      border-radius: var(--radius-md);
+      transition: var(--transition);
+      outline: none;
+      color: var(--text-main);
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: var(--shadow-focus);
+    }
+
+    .form-control::placeholder {
+      color: #cbd5e1;
+    }
+
+    /* 两列小字段 */
+    .row-2col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0.9rem;
+    }
+
+    /* 按钮 */
+    .btn-primary {
+      width: 100%;
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 0.9rem 1.5rem;
+      font-family: 'Inter', sans-serif;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 50px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.6rem;
+      cursor: pointer;
+      transition: var(--transition);
+      box-shadow: 0 6px 14px -4px rgba(37, 99, 235, 0.35);
+      margin-top: 0.5rem;
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      transform: scale(1.01);
+    }
+
+    .btn-primary i {
+      font-size: 1rem;
+    }
+
+    /* 右侧区域 */
+    .right-section {
+      display: flex;
+      flex-direction: column;
+      gap: 1.8rem;
+    }
+
+    /* 分类统计卡片 */
+    .category-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem 1.8rem 1.5rem;
+      box-shadow: var(--shadow-card);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+    }
+
+    .category-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      margin-bottom: 1.25rem;
+      color: #0b1e3a;
+    }
+
+    .category-title i {
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.4rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    .category-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem 1.5rem;
+    }
+
+    .category-item {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      flex: 1 1 160px;
+      font-size: 0.95rem;
+      padding: 0.4rem 0;
+      border-bottom: 1px dashed #e9eef3;
+    }
+
+    .category-name {
+      font-weight: 500;
+      color: #1e293b;
+      min-width: 90px;
+    }
+
+    .category-bar {
+      flex: 1;
+      height: 8px;
+      background: #eef2f6;
+      border-radius: 20px;
+      overflow: hidden;
+      min-width: 60px;
+    }
+
+    .category-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 20px;
+      transition: width 0.4s ease;
+    }
+
+    .category-count {
+      font-weight: 600;
+      color: var(--primary);
+      min-width: 40px;
+      text-align: right;
+    }
+
+    /* 表格卡片 */
+    .table-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-lg);
+      padding: 1.8rem 1.8rem 1.2rem;
+      box-shadow: var(--shadow-card);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      overflow-x: auto;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      flex-wrap: wrap;
+      gap: 0.8rem;
+    }
+
+    .table-header h3 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: #0b1e3a;
+    }
+
+    .table-header h3 i {
+      color: var(--primary);
+      background: var(--primary-light);
+      padding: 0.4rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+    }
+
+    .btn-clear {
+      background: transparent;
+      border: 1.5px solid #fee2e2;
+      color: #b91c1c;
+      font-weight: 500;
+      padding: 0.4rem 1rem;
+      border-radius: 40px;
+      font-size: 0.8rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      cursor: pointer;
+      transition: var(--transition);
+      font-family: 'Inter', sans-serif;
+    }
+
+    .btn-clear:hover {
+      background: #fef2f2;
+      border-color: #fecaca;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      min-width: 1000px;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.85rem 0.5rem;
+      font-weight: 600;
+      color: #475569;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      border-bottom: 1.5px solid #e9eef3;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.85rem 0.5rem;
+      border-bottom: 1px solid #f1f5f9;
+      color: #1e293b;
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .badge {
+      background: #eef2f6;
+      padding: 0.2rem 0.6rem;
+      border-radius: 30px;
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: #334155;
+      white-space: nowrap;
+    }
+
+    .budget-arrow {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .saving-positive {
+      color: var(--success);
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      color: #94a3b8;
+      font-size: 0.9rem;
+    }
+
+    .empty-state i {
+      font-size: 2rem;
+      color: #cbd5e1;
+      margin-bottom: 0.5rem;
+    }
+
+    /* 响应式 */
+    @media (max-width: 1100px) {
+      .main-grid {
+        grid-template-columns: 1fr;
+      }
+      .form-card {
+        position: static;
+      }
+    }
+
+    @media (max-width: 680px) {
+      body {
+        padding: 1rem 0.8rem;
+      }
+      .stats-header {
+        flex-direction: column;
+      }
+      .stat-card {
+        padding: 1.2rem 1.5rem;
+      }
+      .stat-value {
+        font-size: 1.8rem;
+      }
+      .row-2col {
+        grid-template-columns: 1fr;
+        gap: 0.8rem;
+      }
+      .form-card, .category-card, .table-card {
+        padding: 1.5rem 1.2rem;
+      }
+      .category-item {
+        flex: 1 1 100%;
+      }
+    }
+
+    /* 小型动画 */
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .record-row {
+      animation: fadeIn 0.3s ease;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- 头部统计卡片 -->
+    <div class="stats-header">
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-file-invoice"></i> 采购总项数</div>
+        <div class="stat-value" id="statTotalItems">0</div>
+        <div class="stat-sub">所有已登记条目</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-coins"></i> 预算总金额</div>
+        <div class="stat-value" id="statTotalBudget">¥0</div>
+        <div class="stat-sub">预算价合计</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-hand-holding-usd"></i> 合同总金额</div>
+        <div class="stat-value" id="statTotalContract">¥0</div>
+        <div class="stat-sub">实际合同价合计</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label"><i class="fas fa-piggy-bank"></i> 节约经费</div>
+        <div class="stat-value" id="statTotalSaving">¥0</div>
+        <div class="stat-sub">预算价 - 合同价</div>
+      </div>
+    </div>
+
+    <!-- 主要内容区域 -->
+    <div class="main-grid">
+      <!-- 左侧表单 -->
+      <div class="form-card">
+        <div class="form-title">
+          <i class="fas fa-plus-circle"></i> 新增采购记录
+        </div>
+        <form id="purchaseForm">
+          <!-- 序号自动生成，无需填写，但提供隐藏字段或展示？为了整洁，显示自动序号 -->
+          <div class="form-group">
+            <label>序号</label>
+            <input type="text" class="form-control" id="autoSeqDisplay" placeholder="自动生成" readonly disabled style="background:#f8fafc; color:#64748b; cursor:not-allowed;">
+            <input type="hidden" id="recordSeq" value="">
+          </div>
+
+          <div class="form-group">
+            <label for="purchaseContent">采购内容 <span class="required-asterisk">*</span></label>
+            <input type="text" id="purchaseContent" class="form-control" placeholder="例如：办公用品、IT设备" required>
+          </div>
+
+          <div class="form-group">
+            <label for="department">采购部门 <span class="required-asterisk">*</span></label>
+            <input type="text" id="department" class="form-control" placeholder="例如：行政部" required>
+          </div>
+
+          <div class="row-2col">
+            <div class="form-group">
+              <label for="applicant">申请人 <span class="required-asterisk">*</span></label>
+              <input type="text" id="applicant" class="form-control" placeholder="姓名" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">联系电话</label>
+              <input type="tel" id="phone" class="form-control" placeholder="手机号">
+            </div>
+          </div>
+
+          <div class="row-2col">
+            <div class="form-group">
+              <label for="quantity">采购数量 <span class="required-asterisk">*</span></label>
+              <input type="number" id="quantity" class="form-control" placeholder="1" min="1" step="1" value="1" required>
+            </div>
+            <div class="form-group">
+              <label for="budgetPrice">预算价 (¥) <span class="required-asterisk">*</span></label>
+              <input type="number" id="budgetPrice" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="contractPrice">合同价 (¥) <span class="required-asterisk">*</span></label>
+            <input type="number" id="contractPrice" class="form-control" placeholder="0.00" min="0" step="0.01" required>
+          </div>
+
+          <div class="form-group">
+            <label for="remarks">备注</label>
+            <input type="text" id="remarks" class="form-control" placeholder="选填">
+          </div>
+
+          <button type="submit" class="btn-primary">
+            <i class="fas fa-check-circle"></i> 添加记录
+          </button>
+        </form>
+      </div>
+
+      <!-- 右侧区域 -->
+      <div class="right-section">
+        <!-- 分类统计卡片 -->
+        <div class="category-card">
+          <div class="category-title">
+            <i class="fas fa-chart-pie"></i> 采购内容分类统计
+          </div>
+          <div id="categoryStatsContainer" class="category-list">
+            <!-- 动态渲染分类 -->
+            <div class="empty-state" style="padding: 0.8rem; width: 100%;">
+              <i class="fas fa-box-open" style="font-size:1.5rem;"></i> 暂无分类数据，请添加记录
+            </div>
+          </div>
+        </div>
+
+        <!-- 采购记录表格 -->
+        <div class="table-card">
+          <div class="table-header">
+            <h3><i class="fas fa-table"></i> 采购明细清单</h3>
+            <button class="btn-clear" id="clearAllBtn" type="button">
+              <i class="fas fa-trash-alt"></i> 清空全部
+            </button>
+          </div>
+          <div style="overflow-x: auto;">
+            <table id="recordsTable">
+              <thead>
+                <tr>
+                  <th>序号</th>
+                  <th>采购内容</th>
+                  <th>采购部门</th>
+                  <th>申请人</th>
+                  <th>联系电话</th>
+                  <th>数量</th>
+                  <th>预算价(¥)</th>
+                  <th>合同价(¥)</th>
+                  <th>节约(¥)</th>
+                  <th>备注</th>
+                </tr>
+              </thead>
+              <tbody id="recordsBody">
+                <!-- 动态插入 -->
+              </tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="tableEmptyState" style="display: none;">
+            <i class="fas fa-file-alt"></i> 暂无采购记录，请填写左侧表单
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      // ---------- 数据存储 ----------
+      let records = [];            // 存储所有采购记录
+      let nextSeq = 1;            // 自增序号
+
+      // ---------- DOM 元素 ----------
+      const form = document.getElementById('purchaseForm');
+      const autoSeqDisplay = document.getElementById('autoSeqDisplay');
+      const purchaseContent = document.getElementById('purchaseContent');
+      const department = document.getElementById('department');
+      const applicant = document.getElementById('applicant');
+      const phone = document.getElementById('phone');
+      const quantity = document.getElementById('quantity');
+      const budgetPrice = document.getElementById('budgetPrice');
+      const contractPrice = document.getElementById('contractPrice');
+      const remarks = document.getElementById('remarks');
+
+      // 统计显示
+      const statTotalItems = document.getElementById('statTotalItems');
+      const statTotalBudget = document.getElementById('statTotalBudget');
+      const statTotalContract = document.getElementById('statTotalContract');
+      const statTotalSaving = document.getElementById('statTotalSaving');
+
+      // 分类容器 & 表格
+      const categoryStatsContainer = document.getElementById('categoryStatsContainer');
+      const recordsBody = document.getElementById('recordsBody');
+      const tableEmptyState = document.getElementById('tableEmptyState');
+
+      // ---------- 工具函数 ----------
+      // 格式化金额
+      function formatMoney(value) {
+        return '¥' + Number(value).toFixed(2);
+      }
+
+      // 计算单条节约金额
+      function calcSaving(item) {
+        return (item.budgetPrice - item.contractPrice);
+      }
+
+      // 生成序号显示
+      function updateSeqDisplay() {
+        autoSeqDisplay.value = '将自动生成 (当前序号: ' + nextSeq + ')';
+      }
+
+      // ---------- 更新所有统计、分类、表格 ----------
+      function renderAll() {
+        // 1. 更新头部统计卡片
+        const totalItems = records.length;
+        const totalBudget = records.reduce((sum, r) => sum + r.budgetPrice, 0);
+        const totalContract = records.reduce((sum, r) => sum + r.contractPrice, 0);
+        const totalSaving = totalBudget - totalContract;
+
+        statTotalItems.textContent = totalItems;
+        statTotalBudget.textContent = formatMoney(totalBudget);
+        statTotalContract.textContent = formatMoney(totalContract);
+        statTotalSaving.textContent = formatMoney(totalSaving);
+
+        // 2. 分类统计 (按采购内容)
+        const categoryMap = new Map(); // key: 采购内容, value: { count, totalBudget, totalContract }
+        records.forEach(r => {
+          const content = r.purchaseContent.trim() || '未分类';
+          if (!categoryMap.has(content)) {
+            categoryMap.set(content, { count: 0, totalBudget: 0, totalContract: 0 });
+          }
+          const cat = categoryMap.get(content);
+          cat.count += 1;
+          cat.totalBudget += r.budgetPrice;
+          cat.totalContract += r.contractPrice;
+        });
+
+        // 渲染分类
+        if (categoryMap.size === 0) {
+          categoryStatsContainer.innerHTML = `
+            <div class="empty-state" style="padding: 0.8rem; width: 100%;">
+              <i class="fas fa-box-open" style="font-size:1.5rem;"></i> 暂无分类数据，请添加记录
+            </div>`;
+        } else {
+          let html = '';
+          // 按数量降序排列
+          const sortedCategories = Array.from(categoryMap.entries()).sort((a, b) => b[1].count - a[1].count);
+          const maxCount = Math.max(...sortedCategories.map(([_, v]) => v.count), 1);
+
+          sortedCategories.forEach(([content, data]) => {
+            const percentage = (data.count / maxCount) * 100;
+            html += `
+              <div class="category-item">
+                <span class="category-name">${escapeHtml(content)}</span>
+                <div class="category-bar">
+                  <div class="category-bar-fill" style="width: ${percentage}%;"></div>
+                </div>
+                <span class="category-count">${data.count} 项</span>
+              </div>
+            `;
+          });
+          categoryStatsContainer.innerHTML = html;
+        }
+
+        // 3. 渲染表格
+        if (records.length === 0) {
+          tableEmptyState.style.display = 'block';
+          recordsBody.innerHTML = '';
+        } else {
+          tableEmptyState.style.display = 'none';
+          let rows = '';
+          // 按序号正序显示
+          records.forEach(r => {
+            const saving = calcSaving(r);
+            const savingClass = saving > 0 ? 'saving-positive' : (saving < 0 ? 'style="color:#dc2626;"' : '');
+            rows += `
+              <tr class="record-row">
+                <td><span class="badge">${r.seq}</span></td>
+                <td><strong>${escapeHtml(r.purchaseContent)}</strong></td>
+                <td>${escapeHtml(r.department)}</td>
+                <td>${escapeHtml(r.applicant)}</td>
+                <td>${escapeHtml(r.phone || '—')}</td>
+                <td>${r.quantity}</td>
+                <td>${formatMoney(r.budgetPrice)}</td>
+                <td>${formatMoney(r.contractPrice)}</td>
+                <td class="${saving > 0 ? 'saving-positive' : ''}" ${saving < 0 ? 'style="color:#dc2626;"' : ''}>
+                  ${formatMoney(saving)}
+                </td>
+                <td>${escapeHtml(r.remarks || '—')}</td>
+              </tr>
+            `;
+          });
+          recordsBody.innerHTML = rows;
+        }
+
+        // 更新序号显示
+        updateSeqDisplay();
+      }
+
+      // 转义HTML防止XSS
+      function escapeHtml(text) {
+        if (!text) return '';
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;'
+        };
+        return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+      }
+
+      // ---------- 添加记录 ----------
+      function addRecord(e) {
+        e.preventDefault();
+
+        // 获取并校验值
+        const content = purchaseContent.value.trim();
+        const dept = department.value.trim();
+        const app = applicant.value.trim();
+        const phoneVal = phone.value.trim();
+        const qty = parseFloat(quantity.value);
+        const budget = parseFloat(budgetPrice.value);
+        const contract = parseFloat(contractPrice.value);
+        const remark = remarks.value.trim();
+
+        // 基本验证
+        if (!content || !dept || !app) {
+          alert('请填写采购内容、采购部门和申请人');
+          return;
+        }
+        if (isNaN(qty) || qty <= 0) {
+          alert('采购数量必须大于0');
+          return;
+        }
+        if (isNaN(budget) || budget < 0) {
+          alert('预算价必须为有效数字且≥0');
+          return;
+        }
+        if (isNaN(contract) || contract < 0) {
+          alert('合同价必须为有效数字且≥0');
+          return;
+        }
+
+        // 创建记录
+        const newRecord = {
+          seq: nextSeq++,
+          purchaseContent: content,
+          department: dept,
+          applicant: app,
+          phone: phoneVal,
+          quantity: qty,
+          budgetPrice: budget,
+          contractPrice: contract,
+          remarks: remark
+        };
+
+        records.push(newRecord);
+        
+        // 重置表单（保留部分默认值，但清空内容）
+        form.reset();
+        // 设定默认数量1，其他空
+        quantity.value = 1;
+        purchaseContent.focus();
+
+        // 重新渲染
+        renderAll();
+      }
+
+      // ---------- 清空全部 ----------
+      function clearAllRecords() {
+        if (records.length === 0) return;
+        if (!confirm('确定要清空所有采购记录吗？此操作不可恢复。')) return;
+
+        records = [];
+        nextSeq = 1;
+        renderAll();
+        // 同时清空表单
+        form.reset();
+        quantity.value = 1;
+        updateSeqDisplay();
+      }
+
+      // ---------- 初始化 ----------
+      function init() {
+        // 设置初始序号显示
+        nextSeq = 1;
+        updateSeqDisplay();
+
+        // 表单提交事件
+        form.addEventListener('submit', addRecord);
+
+        // 清空按钮
+        document.getElementById('clearAllBtn').addEventListener('click', clearAllRecords);
+
+        // 默认数量值
+        quantity.value = 1;
+
+        // 首次渲染（虽然记录为空）
+        renderAll();
+
+        // 可选：添加示例数据以展示效果？这里不添加，保持空白。用户可手动输入。
+        // 但为了演示统计效果，可以添加一两条？考虑到用户需要真实体验，我们不加示例，完全由用户操作。
+        // 如果你想演示，可以取消下面注释：
+        /*
+        // 示例数据（仅用于演示，可删除）
+        records.push({ seq: nextSeq++, purchaseContent: '办公用品', department: '行政部', applicant: '张明', phone: '13800138000', quantity: 5, budgetPrice: 500, contractPrice: 450, remarks: '季度采购' });
+        records.push({ seq: nextSeq++, purchaseContent: 'IT设备', department: '技术部', applicant: '李华', phone: '13912345678', quantity: 2, budgetPrice: 8000, contractPrice: 7600, remarks: '笔记本电脑' });
+        records.push({ seq: nextSeq++, purchaseContent: '办公用品', department: '财务部', applicant: '王芳', phone: '13698765432', quantity: 3, budgetPrice: 300, contractPrice: 280, remarks: '' });
+        renderAll();
+        */
+      }
+
+      // 页面加载执行
+      init();
+    })();
+  </script>
+</body>
+</html>
