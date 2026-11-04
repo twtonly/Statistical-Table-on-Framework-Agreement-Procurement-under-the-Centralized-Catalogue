@@ -217,6 +217,16 @@
       cursor: not-allowed;
     }
 
+    /* 日期选择器图标（原生已带，这里仅美化） */
+    input[type="date"] {
+      cursor: pointer;
+    }
+
+    /* 单列全宽 */
+    .form-group-full {
+      width: 100%;
+    }
+
     .row-2col {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -276,10 +286,6 @@
       background: #f1f5f9;
       border-color: #cbd5e1;
       color: #1e293b;
-    }
-
-    .btn-secondary i {
-      font-size: 0.9rem;
     }
 
     /* 右侧区域 */
@@ -633,22 +639,25 @@
           <span class="edit-badge"><i class="fas fa-pen"></i> 编辑中</span>
         </div>
         <form id="purchaseForm">
-          <!-- 序号（自动生成/编辑时显示） -->
+          <!-- 序号 -->
           <div class="form-group">
             <label>序号</label>
             <input type="text" class="form-control" id="autoSeqDisplay" placeholder="自动生成" readonly disabled>
           </div>
 
+          <!-- 采购内容 -->
           <div class="form-group">
             <label for="purchaseContent">采购内容 <span class="required-asterisk">*</span></label>
             <input type="text" id="purchaseContent" class="form-control" placeholder="例如：电脑、显示器、服务器、打印机" required>
           </div>
 
+          <!-- 采购部门 -->
           <div class="form-group">
             <label for="department">采购部门 <span class="required-asterisk">*</span></label>
             <input type="text" id="department" class="form-control" placeholder="例如：行政部" required>
           </div>
 
+          <!-- 申请人 + 联系电话（两列） -->
           <div class="row-2col">
             <div class="form-group">
               <label for="applicant">申请人 <span class="required-asterisk">*</span></label>
@@ -666,18 +675,19 @@
             <input type="text" id="supplier" class="form-control" placeholder="例如：华为、联想、戴尔" required>
           </div>
 
-          <div class="row-2col">
-            <div class="form-group">
-              <label for="quantity">采购数量 <span class="required-asterisk">*</span></label>
-              <input type="number" id="quantity" class="form-control" placeholder="1" min="1" step="1" value="1" required>
-            </div>
-            <!-- 履约时间 -->
-            <div class="form-group">
-              <label for="deliveryDate">履约时间 <span class="required-asterisk">*</span></label>
-              <input type="date" id="deliveryDate" class="form-control" required>
-            </div>
+          <!-- 采购数量（单列） -->
+          <div class="form-group form-group-full">
+            <label for="quantity">采购数量 <span class="required-asterisk">*</span></label>
+            <input type="number" id="quantity" class="form-control" placeholder="1" min="1" step="1" value="1" required>
           </div>
 
+          <!-- 履约时间（单列，日历选择） -->
+          <div class="form-group form-group-full">
+            <label for="deliveryDate">履约时间 <span class="required-asterisk">*</span></label>
+            <input type="date" id="deliveryDate" class="form-control" required>
+          </div>
+
+          <!-- 预算价 + 合同价（两列） -->
           <div class="row-2col">
             <div class="form-group">
               <label for="budgetPrice">预算价 (¥) <span class="required-asterisk">*</span></label>
@@ -689,12 +699,13 @@
             </div>
           </div>
 
+          <!-- 备注 -->
           <div class="form-group">
             <label for="remarks">备注</label>
             <input type="text" id="remarks" class="form-control" placeholder="选填">
           </div>
 
-          <!-- 按钮组：新增/保存 + 取消编辑 -->
+          <!-- 按钮组 -->
           <div class="btn-group">
             <button type="submit" class="btn-primary" id="submitBtn">
               <i class="fas fa-check-circle"></i> <span id="submitBtnText">添加记录</span>
@@ -891,7 +902,7 @@
           categoryStatsContainer.innerHTML = html;
         }
 
-        // 3. 渲染表格（带操作列）
+        // 3. 渲染表格
         if (records.length === 0) {
           tableEmptyState.style.display = 'block';
           recordsBody.innerHTML = '';
@@ -1011,7 +1022,7 @@
         }
 
         if (editingId !== null) {
-          // 编辑保存：查找并更新
+          // 编辑保存
           const idx = records.findIndex(r => r.seq === editingId);
           if (idx !== -1) {
             records[idx] = {
@@ -1060,13 +1071,11 @@
         if (!record) return;
         if (!confirm(`确定要删除序号 ${seq} 的记录（${record.purchaseContent}）吗？`)) return;
 
-        // 如果正在编辑这条记录，先退出编辑模式
         if (editingId === seq) {
           exitEditMode();
         }
 
         records = records.filter(r => r.seq !== seq);
-        // 不重置 nextSeq，保持序号唯一性
         renderAll();
       }
 
@@ -1083,7 +1092,7 @@
         quantity.value = 1;
       }
 
-      // ---------- 表格事件委托（编辑/删除） ----------
+      // ---------- 表格事件委托 ----------
       function handleTableClick(e) {
         const btn = e.target.closest('.btn-icon');
         if (!btn) return;
@@ -1112,15 +1121,6 @@
         recordsBody.addEventListener('click', handleTableClick);
 
         renderAll();
-
-        // 如需演示数据，可取消下方注释
-        /*
-        records.push({ seq: nextSeq++, purchaseContent: '电脑', department: '技术部', applicant: '张明', phone: '13800138000', supplier: '联想', quantity: 5, deliveryDate: '2025-06-30', budgetPrice: 25000, contractPrice: 23800, remarks: '开发用' });
-        records.push({ seq: nextSeq++, purchaseContent: '显示器', department: '设计部', applicant: '李华', phone: '13912345678', supplier: '戴尔', quantity: 8, deliveryDate: '2025-07-15', budgetPrice: 9600, contractPrice: 9200, remarks: '' });
-        records.push({ seq: nextSeq++, purchaseContent: '服务器', department: '信息中心', applicant: '王芳', phone: '13698765432', supplier: '华为', quantity: 2, deliveryDate: '2025-08-01', budgetPrice: 80000, contractPrice: 76000, remarks: '集群' });
-        records.push({ seq: nextSeq++, purchaseContent: '打印机', department: '行政部', applicant: '赵岩', phone: '13511112222', supplier: '惠普', quantity: 3, deliveryDate: '2025-07-20', budgetPrice: 4500, contractPrice: 4200, remarks: '激光' });
-        renderAll();
-        */
       }
 
       init();
