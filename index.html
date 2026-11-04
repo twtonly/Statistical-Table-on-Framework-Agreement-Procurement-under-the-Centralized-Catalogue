@@ -57,6 +57,24 @@
       gap: 2rem;
     }
 
+    /* 存储提示条 */
+    .storage-bar {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      background: #ecfdf5;
+      border: 1px solid #a7f3d0;
+      color: #065f46;
+      padding: 0.6rem 1.2rem;
+      border-radius: 50px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .storage-bar i {
+      color: var(--success);
+    }
+
     /* 头部统计卡片 */
     .stats-header {
       display: flex;
@@ -217,12 +235,10 @@
       cursor: not-allowed;
     }
 
-    /* 日期选择器图标（原生已带，这里仅美化） */
     input[type="date"] {
       cursor: pointer;
     }
 
-    /* 单列全宽 */
     .form-group-full {
       width: 100%;
     }
@@ -605,6 +621,12 @@
 </head>
 <body>
   <div class="app-container">
+    <!-- 本地存储提示条 -->
+    <div class="storage-bar">
+      <i class="fas fa-database"></i>
+      数据自动保存在本机浏览器中，关闭页面后再次打开不会丢失。
+    </div>
+
     <!-- 头部统计卡片 -->
     <div class="stats-header">
       <div class="stat-card">
@@ -657,7 +679,7 @@
             <input type="text" id="department" class="form-control" placeholder="例如：行政部" required>
           </div>
 
-          <!-- 申请人 + 联系电话（两列） -->
+          <!-- 申请人 + 联系电话 -->
           <div class="row-2col">
             <div class="form-group">
               <label for="applicant">申请人 <span class="required-asterisk">*</span></label>
@@ -687,7 +709,7 @@
             <input type="date" id="deliveryDate" class="form-control" required>
           </div>
 
-          <!-- 预算价 + 合同价（两列） -->
+          <!-- 预算价 + 合同价 -->
           <div class="row-2col">
             <div class="form-group">
               <label for="budgetPrice">预算价 (¥) <span class="required-asterisk">*</span></label>
@@ -773,10 +795,14 @@
 
   <script>
     (function() {
-      // ---------- 数据存储 ----------
-      let records = [];            // 存储所有采购记录
+      // ---------- localStorage 存储键 ----------
+      const STORAGE_KEY = 'framework_purchase_records_v1';
+      const NEXT_SEQ_KEY = 'framework_purchase_next_seq_v1';
+
+      // ---------- 数据 ----------
+      let records = [];            // 采购记录数组
       let nextSeq = 1;            // 自增序号
-      let editingId = null;       // 当前正在编辑的记录 seq，null 表示新增模式
+      let editingId = null;       // 当前编辑的记录 seq，null 表示新增
 
       // ---------- DOM 元素 ----------
       const form = document.getElementById('purchaseForm');
@@ -798,13 +824,11 @@
       const submitBtnText = document.getElementById('submitBtnText');
       const cancelEditBtn = document.getElementById('cancelEditBtn');
 
-      // 统计显示
       const statTotalItems = document.getElementById('statTotalItems');
       const statTotalBudget = document.getElementById('statTotalBudget');
       const statTotalContract = document.getElementById('statTotalContract');
       const statTotalSaving = document.getElementById('statTotalSaving');
 
-      // 分类容器 & 表格
       const categoryStatsContainer = document.getElementById('categoryStatsContainer');
       const recordsBody = document.getElementById('recordsBody');
       const tableEmptyState = document.getElementById('tableEmptyState');
@@ -829,18 +853,73 @@
       function escapeHtml(text) {
         if (!text) return '';
         const map = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#039;'
+          '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;'
         };
         return text.replace(/[&<>"']/g, function(m) { return map[m]; });
       }
 
+      // ---------- 持久化：保存到 localStorage ----------
+      function saveToLocalStorage() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(records));
+          localStorage.setItem(NEXT_SEQ_KEY, String(nextSeq));
+        } catch (e) {
+          console.warn('本地存储写入失败：', e);
+          alert('本地存储空间可能已满，数据未能保存。请清理浏览器存储或删除部分记录后重试。');
+        }
+      }
+
+      // ---------- 持久化：从 localStorage 加载 ----------
+      function loadFromLocalStorage() {
+        try {
+          const storedRecords = localStorage.getItem(STORAGE_KEY);
+          const storedNextSeq = localStorage.getItem(NEXT_SEQ_KEY);
+
+          if (storedRecords) {
+            const parsed = JSON.parse(storedRecords);
+            if (Array.isArray(parsed)) {
+              // 数据清洗：确保每条记录字段完整且类型正确
+              records = parsed
+                .filter(r => r && typeof r === 'object' && typeof r.seq === 'number')
+                .map(r => ({
+                  seq: r.seq,
+                  purchaseContent: String(r.purchaseContent || ''),
+                  department: String(r.department || ''),
+                  applicant: String(r.applicant || ''),
+                  phone: String(r.phone || ''),
+                  supplier: String(r.supplier || ''),
+                  quantity: Number(r.quantity) || 1,
+                  deliveryDate: String(r.deliveryDate || ''),
+                  budgetPrice: Number(r.budgetPrice) || 0,
+                  contractPrice: Number(r.contractPrice) || 0,
+                  remarks: String(r.remarks || '')
+                }));
+            }
+          }
+
+          if (storedNextSeq) {
+            const n = parseInt(storedNextSeq, 10);
+            if (!isNaN(n) && n > 0) nextSeq = n;
+          } else if (records.length > 0) {
+            // 如果没有存储序号但存在记录，取最大序号+1
+            nextSeq = Math.max(...records.map(r => r.seq), 0) + 1;
+          }
+
+          // 避免序号冲突
+          if (records.length > 0) {
+            const maxSeq = Math.max(...records.map(r => r.seq));
+            if (nextSeq <= maxSeq) nextSeq = maxSeq + 1;
+          }
+        } catch (e) {
+          console.warn('本地存储读取失败：', e);
+          records = [];
+          nextSeq = 1;
+        }
+      }
+
       // ---------- 渲染所有 ----------
       function renderAll() {
-        // 1. 更新头部统计
+        // 1. 头部统计
         const totalItems = records.length;
         const totalBudget = records.reduce((sum, r) => sum + r.budgetPrice, 0);
         const totalContract = records.reduce((sum, r) => sum + r.contractPrice, 0);
@@ -851,7 +930,7 @@
         statTotalContract.textContent = formatMoney(totalContract);
         statTotalSaving.textContent = formatMoney(totalSaving);
 
-        // 2. 分类统计（按采购内容）
+        // 2. 分类统计
         const categoryMap = new Map();
         records.forEach(r => {
           let content = r.purchaseContent.trim();
@@ -902,7 +981,7 @@
           categoryStatsContainer.innerHTML = html;
         }
 
-        // 3. 渲染表格
+        // 3. 表格
         if (records.length === 0) {
           tableEmptyState.style.display = 'block';
           recordsBody.innerHTML = '';
@@ -952,7 +1031,6 @@
         submitBtnText.textContent = '保存修改';
         cancelEditBtn.style.display = 'flex';
 
-        // 填充表单
         purchaseContent.value = record.purchaseContent;
         department.value = record.department;
         applicant.value = record.applicant;
@@ -977,7 +1055,6 @@
         submitBtnText.textContent = '添加记录';
         cancelEditBtn.style.display = 'none';
 
-        // 重置表单
         form.reset();
         quantity.value = 1;
         const today = new Date().toISOString().split('T')[0];
@@ -1022,7 +1099,6 @@
         }
 
         if (editingId !== null) {
-          // 编辑保存
           const idx = records.findIndex(r => r.seq === editingId);
           if (idx !== -1) {
             records[idx] = {
@@ -1041,7 +1117,6 @@
           }
           exitEditMode();
         } else {
-          // 新增
           const newRecord = {
             seq: nextSeq++,
             purchaseContent: content,
@@ -1062,6 +1137,8 @@
           purchaseContent.focus();
         }
 
+        // 关键：保存到本地存储
+        saveToLocalStorage();
         renderAll();
       }
 
@@ -1076,6 +1153,7 @@
         }
 
         records = records.filter(r => r.seq !== seq);
+        saveToLocalStorage();
         renderAll();
       }
 
@@ -1087,6 +1165,7 @@
         records = [];
         nextSeq = 1;
         if (editingId !== null) exitEditMode();
+        saveToLocalStorage();
         renderAll();
         form.reset();
         quantity.value = 1;
@@ -1110,7 +1189,10 @@
 
       // ---------- 初始化 ----------
       function init() {
-        nextSeq = 1;
+        // 从 localStorage 加载历史数据
+        loadFromLocalStorage();
+
+        // 设置默认值
         quantity.value = 1;
         const today = new Date().toISOString().split('T')[0];
         deliveryDate.value = today;
